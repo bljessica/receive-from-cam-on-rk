@@ -20,39 +20,48 @@ void SocketServer::Connect() {
     _server_addr.sin_port = htons(SERVER_PORT);  
     if(bind(_server_socket,(struct sockaddr*)&_server_addr, sizeof(struct sockaddr_in)) < 0){ // 绑定失败 
         perror("Bind Error:%s\n");  
+        Disconnet(); 
         exit(1);  
     }  
     // 监听客户端连接请求，监听队列长度位5
     if(listen(_server_socket, 5) < 0) {  
         perror("Listen Error:%s\n");  
-        close(_server_socket);  
+        Disconnet();
         exit(1);  
     }  
     printf("Start listening...\n");
     if ((_client_socket = accept(_server_socket, (struct sockaddr*) &_client_addr, &addr_len)) < 0) {
         perror("Aceept error.\n");
+        Disconnet(); 
         exit(1);
     }
     printf("accept client %s\n", inet_ntoa(_client_addr.sin_addr)); 
-    strcpy(_buffer, "Hi, I am server!");
-    send(_client_socket, _buffer, sizeof(_buffer), 0); // 发送的数据 
+    // strcpy(_buffer, "Hi, I am server!");
+    // send(_client_socket, _buffer, sizeof(_buffer), 0); // 发送的数据 
 
+    // TODO: 连续读图片
+    ReceiveImage();
+
+    Disconnet();
+}
+
+
+void SocketServer::ReceiveImage() {
     // 接收客户端输入
-    int len;
-    while(1) { 
-        len = recv(_client_socket, _buffer, (size_t)MAX_BUFFER_SIZE, 0); // 接受数据
-        if (len > 0) {
-            printf("%s\n", _buffer);
-            if (strcmp(_buffer, "Close") == 0) { // 关闭连接
-                Disconnet();
-                break;
-            }
-            strcat(_buffer, " is received.\n");  
-            send(_client_socket, _buffer, sizeof(_buffer), 0); // 发送的数据
+    if ((_fp = fopen(_img_file_name, "wb")) == NULL) {
+        perror("Open save file error.\n");
+        exit(1);
+    }
+    // 分段接收并存储图片
+    int num_read = 0;
+    while (1) {
+        num_read = recv(_client_socket, _buffer, MAX_BUFFER_SIZE, 0);
+        if (num_read == 0) { // 已接收完
+            break;
         }
-         
-    }  
-    close(_client_socket);
+        fwrite(_buffer, 1, MAX_BUFFER_SIZE, _fp);
+    }
+    printf("Image received.\n");
 }
 
 
