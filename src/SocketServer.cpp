@@ -71,7 +71,7 @@ void SocketServer::Connect() {
 }
 
 
-// 接收客户端发送的图片并返回相应结果
+// 接收客户端发送的图片并返回相应结果(Not in use)
 void SocketServer::ReceiveImage() {
     // 接收客户端输入
     if ((_fp = fopen(_img_file_name, "wb")) == NULL) {
