@@ -11,7 +11,7 @@
 #include <string.h>
 
 
-#define MAX_BUFFER_SIZE 8192 
+#define MAX_BUFFER_SIZE 1500 
 #define SERVER_PORT  9987
 
  

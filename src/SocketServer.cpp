@@ -18,34 +18,60 @@ void SocketServer::Connect() {
     _server_addr.sin_family = AF_INET;  
     _server_addr.sin_addr.s_addr = htonl(INADDR_ANY);  
     _server_addr.sin_port = htons(SERVER_PORT);  
+    // 设置套接字选项避免Address already in use错误
+    int on = 1;
+    if((setsockopt(_server_socket, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)))<0)
+    {
+        perror("Setsockopt failed");
+        exit(1);
+    }
     if(bind(_server_socket,(struct sockaddr*)&_server_addr, sizeof(struct sockaddr_in)) < 0){ // 绑定失败 
-        perror("Bind Error:%s\n");  
+        fprintf(stderr, "Bind error: %s\n", strerror(errno));
         Disconnet(); 
         exit(1);  
     }  
     // 监听客户端连接请求，监听队列长度位5
     if(listen(_server_socket, 5) < 0) {  
-        perror("Listen Error:%s\n");  
+        fprintf(stderr, "Listen error: %s\n", strerror(errno));
         Disconnet();
         exit(1);  
     }  
     printf("Start listening...\n");
+    
     if ((_client_socket = accept(_server_socket, (struct sockaddr*) &_client_addr, &addr_len)) < 0) {
         perror("Aceept error.\n");
         Disconnet(); 
         exit(1);
     }
     printf("accept client %s\n", inet_ntoa(_client_addr.sin_addr)); 
-    // strcpy(_buffer, "Hi, I am server!");
-    // send(_client_socket, _buffer, sizeof(_buffer), 0); // 发送的数据 
 
     // TODO: 连续读图片
-    ReceiveImage();
+    int i = 0; // FIXME:
+    while (1) {
+        i++;
+        int num_read = recv(_client_socket, _buffer, MAX_BUFFER_SIZE, 0);
+        if (num_read != 0) { 
+            if (strcmp(_buffer, "SENDED") == 0) {
+                memset(_buffer, 0, sizeof(_buffer));
+                // TODO: 进行人脸识别
+                // FIXME: 模拟
+                if (i % 20 == 0) { // 识别到了人脸
+                    sprintf(_buffer, "de %d ", i);
+                    send(_client_socket, _buffer, sizeof(_buffer), 0);
+                    continue;
+                } 
+            } 
+        }
+        // 未识别到
+        strcpy(_buffer, "None");
+        send(_client_socket, _buffer, sizeof(_buffer), 0);
+    }
 
     Disconnet();
 }
 
 
+// 接收客户端发送的图片并返回相应结果
 void SocketServer::ReceiveImage() {
     // 接收客户端输入
     if ((_fp = fopen(_img_file_name, "wb")) == NULL) {
@@ -60,7 +86,18 @@ void SocketServer::ReceiveImage() {
             break;
         }
         fwrite(_buffer, 1, MAX_BUFFER_SIZE, _fp);
+        // printf("writing...\n");
     }
+    // TODO: 进行人脸识别
+    // FIXME: 模拟
+    // if (_i % 3 == 0) { // 识别到了人脸
+    //     sprintf(_buffer, "Deng %d", std::to_string(_i));
+    //     // strcpy(_buffer, "Deng" + std::to_string(i));
+    //     send(_client_socket, _buffer, sizeof(_buffer), 0);
+    // } else { // 未识别到
+    //     strcpy(_buffer, "None");
+    //     send(_client_socket, _buffer, sizeof(_buffer), 0);
+    // }
     printf("Image received.\n");
 }
 
