@@ -1,11 +1,14 @@
 #include "SocketServer.h"
+#include "rockface_control.h"
 
 
 SocketServer::SocketServer() {
     
+
 }
 
 
+// 创建socket连接
 void SocketServer::Connect() {
     _server_socket = socket(AF_INET,SOCK_STREAM, 0);
     if(_server_socket < 0) { // 创建失败
@@ -45,36 +48,32 @@ void SocketServer::Connect() {
     }
     printf("accept client %s\n", inet_ntoa(_client_addr.sin_addr)); 
 
-    // TODO: 连续读图片
-    int i = 0; // FIXME:
     while (1) {
-        i++;
         int num_read = recv(_client_socket, _buffer, MAX_BUFFER_SIZE, 0);
         if (num_read != 0) { 
             if (strcmp(_buffer, "SENDED") == 0) {
                 memset(_buffer, 0, sizeof(_buffer));
-                // TODO: 进行人脸识别
-                // FIXME: 模拟
-                if (i % 20 == 0) { // 识别到了人脸
-                    sprintf(_buffer, "de %d ", i);
+                // 进行人脸特征提取
+                std::string cmp_res = CompareImageWithFaceLib(CUR_FRAME_IMAGE_FILE_NAME);
+                if (cmp_res.length() > 0) {
+                    printf("persons: %s\n", cmp_res.data());
+                    sprintf(_buffer, "%s", cmp_res.data());
                     send(_client_socket, _buffer, sizeof(_buffer), 0);
                     continue;
-                } 
+                }
             } 
         }
         // 未识别到
         strcpy(_buffer, "None");
         send(_client_socket, _buffer, sizeof(_buffer), 0);
     }
-
-    Disconnet();
 }
 
 
 // 接收客户端发送的图片并返回相应结果(Not in use)
 void SocketServer::ReceiveImage() {
     // 接收客户端输入
-    if ((_fp = fopen(_img_file_name, "wb")) == NULL) {
+    if ((_fp = fopen(CUR_FRAME_IMAGE_FILE_NAME, "wb")) == NULL) {
         perror("Open save file error.\n");
         exit(1);
     }
@@ -102,6 +101,7 @@ void SocketServer::ReceiveImage() {
 }
 
 
+// 释放socket连接
 void SocketServer::Disconnet() {
     close(_server_socket);  
     printf("Socket disconnected.\n");
