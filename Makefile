@@ -204,6 +204,33 @@ src/main.cpp.s:
 	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/read_camera.o: src/read_camera.cpp.o
+
+.PHONY : src/read_camera.o
+
+# target to build an object file
+src/read_camera.cpp.o:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/read_camera.cpp.o
+.PHONY : src/read_camera.cpp.o
+
+src/read_camera.i: src/read_camera.cpp.i
+
+.PHONY : src/read_camera.i
+
+# target to preprocess a source file
+src/read_camera.cpp.i:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/read_camera.cpp.i
+.PHONY : src/read_camera.cpp.i
+
+src/read_camera.s: src/read_camera.cpp.s
+
+.PHONY : src/read_camera.s
+
+# target to generate assembly for a file
+src/read_camera.cpp.s:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/read_camera.cpp.s
+.PHONY : src/read_camera.cpp.s
+
 src/rockface_control.o: src/rockface_control.cpp.o
 
 .PHONY : src/rockface_control.o
@@ -249,6 +276,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/read_camera.o"
+	@echo "... src/read_camera.i"
+	@echo "... src/read_camera.s"
 	@echo "... src/rockface_control.o"
 	@echo "... src/rockface_control.i"
 	@echo "... src/rockface_control.s"
