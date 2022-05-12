@@ -15,7 +15,7 @@ link_directories(${PROJECT_ROOT_PATH}/lib)
 
 include_directories(${PROJECT_ROOT_PATH}/include/ffmpeg)
 link_directories(${PROJECT_ROOT_PATH}/lib/ffmpeg)
-    
+
 # 查找路径下的所有源文件（因为头文件和实现分离，所以要把所有源文件都添加进来）
 aux_source_directory(${PROJECT_ROOT_PATH}/src DIR_SRCS)
 

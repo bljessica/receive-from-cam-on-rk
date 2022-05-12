@@ -14,7 +14,7 @@
 #define LICENSE_PATH "/data/rkfacial_data/key.lic"
 #define FACE_LIB_DATA_PATH "/data/rkfacial_data/white_list"
 #define FACE_LIB_PERSON_JSON_PATH "/data/rkfacial_data/white_list/wlist.json"
-#define SIMILARITY_THRESHOLD 0.25 // 两个人脸特征的相似度 (使用欧式距离)，可以设置阈值(建议阈值范围0.7~1.3，可根据不同人脸库和应用场景调整)，如果小于阈值可以判断为同一人
+#define SIMILARITY_THRESHOLD 0.3 // 两个人脸特征的相似度 (使用欧式距离)，可以设置阈值(建议阈值范围0.7~1.3，可根据不同人脸库和应用场景调整)，如果小于阈值可以判断为同一人
 
 using namespace std;
 

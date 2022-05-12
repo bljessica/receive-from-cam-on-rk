@@ -1,47 +1,52 @@
 #include "read_camera.h"
+#include "rockface_control.h"
 
-
-int frame_count = 0;
+// time_t now;
+// struct tm *t;
 
 
 // 读取rtsp流
-void ReadRtsp() {
+void ReadRtsp(SocketClient socket_client) {
     AVFormatContext *fmt_ctx = NULL;
-
     const AVCodec *codec;
     AVCodecContext *codec_ctx = NULL;
-
     AVStream *stream = NULL;
-    int stream_idx;
-
     AVPacket av_packet;
-
     AVFrame *frame;
-
 
     AVDictionary *ops = NULL;
     // 强制使用tcp，udp在1080p时会丢包导致花屏
     av_dict_set(&ops, "rtsp_transport", "tcp", 0); // tcp更可靠但速度更慢
-    av_dict_set(&ops, "max_delay", "5000000", 0);
-    // av_dict_set(&ops, "buffer_size", "8388608", 0);
+    av_dict_set(&ops, "max_delay", "5000000", 0); // 设置最大时延5s
+    av_dict_set(&ops, "strict", "1", 0); // 使用更高的重排序计数
+    av_dict_set(&ops, "buffer_size", "1024000", 0); // 设置最大缓冲
+    // av_dict_set(&ops, "max_delay", "500000", 0); 
+    // av_dict_set(&ops, "framerate", "20", 0); // 码率
     // 打开网络流
     if (avformat_open_input(&fmt_ctx, RTSP_URL, NULL, &ops) != 0) {
     // if (avformat_open_input(&fmt_ctx, RTSP_URL, NULL, NULL) != 0) {
         perror("Can not open rtsp file.\n");
         exit(1);
     }
-    if (avformat_find_stream_info(fmt_ctx, NULL) < 0) {
+    if (avformat_find_stream_info(fmt_ctx, NULL) < 0) { 
         perror("Can not find stream info.\n");
         exit(1);
     }
 
     // av_dump_format(fmt_ctx, 0, RTSP_URL, 0); // 输出视频流详细信息
-
     av_init_packet(&av_packet);
     av_packet.data = NULL;
     av_packet.size = 0;
 
-    stream_idx = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
+    int stream_idx = -1;
+    // stream_idx = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
+    for (int i = 0; i < fmt_ctx->nb_streams; i++) {
+        if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+            stream_idx = i;
+            printf("Find stream idx %d.\n", i);
+            break;
+        }
+    }
     if (stream_idx < 0) {
         perror("Can not find stream in input file.\n");
         exit(1);
@@ -77,23 +82,49 @@ void ReadRtsp() {
 
     char buf[1024];
 
+    socket_client.SendMsg("start");
+
     printf("Start to read frame.\n");
-    while (av_read_frame(fmt_ctx, &av_packet) >= 0) { 
-        if (av_packet.stream_index == stream_idx) {
-            if (avcodec_send_packet(codec_ctx, &av_packet) < 0) {
-                continue;
+    // int i = 0;
+    // system("rm -r test");
+    // system("mkdir test");
+    // while (true) { 
+        while (av_read_frame(fmt_ctx, &av_packet) >= 0) {
+            // if (av_packet.stream_index == stream_idx && (av_packet.flags & AV_PKT_FLAG_KEY)) { // 判断是否为关键帧
+            if (av_packet.stream_index == stream_idx) { 
+                if (avcodec_send_packet(codec_ctx, &av_packet) < 0) {
+                    continue;
+                }
+                // 保存当前帧画面为图片
+                while (avcodec_receive_frame(codec_ctx, frame) == 0) { // 一次可能不能接收到所有数据
+                        SavePicture(frame);
+                }
+
+                // char tmp[100];
+                // sprintf(tmp, "mv /data/documents/receive_from_cam_on_rk/cur_frame.jpg /data/documents/receive_from_cam_on_rk/test/%d.jpg", ++i);
+                // system(tmp);
+
+                // 进行人脸识别
+                std::string cmp_res = CompareImageWithFaceLib(OUT_IMG_NAME);
+                if (cmp_res.length() > 0) {
+                    // time(&now);
+                    // t = localtime(&now);
+                    // printf("%d时%d分%d秒\n",t->tm_hour,t->tm_min,t->tm_sec);
+                    // printf("persons: %s\n", cmp_res.data());
+                    // 发送人脸识别结果
+                    // printf("send*****************: %s\n", cmp_res.data());
+                    socket_client.SendMsg(cmp_res.data());
+                } 
+            //     else { // FIXME:
+                    // socket_client.SendMsg("pull");
+            //     }
             }
-            while (avcodec_receive_frame(codec_ctx, frame) == 0) { // 一次可能不能接受到所有数据
-                SavePicture(frame);
-            }
-            frame_count++;
-            printf("frame_count: %d\n", frame_count);
-        }
         av_packet_unref(&av_packet);
-        if (frame_count == 10) { // FIXME:
-            break;
+
         }
-    }
+        // av_packet_unref(&av_packet);
+    // }
+    av_dict_free(&ops);
 }
 
 
@@ -107,7 +138,6 @@ void SavePicture(AVFrame *p_frame) {
     // 设置输出文件格式
     p_fmt_ctx->oformat = av_guess_format("mjpeg", NULL, NULL);
     // 创建并初始化输出AVIOContext
-    // const char * out_img_name = (OUT_IMG_NAME + to_string(frame_count) + OUT_IMG_TYPE).c_str();
     if (avio_open(&p_fmt_ctx->pb, OUT_IMG_NAME, AVIO_FLAG_READ_WRITE) < 0) {
         perror("Can not open output file.\n");
         exit(1);

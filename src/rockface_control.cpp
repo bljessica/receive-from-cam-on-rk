@@ -145,8 +145,11 @@ string CompareImageWithFaceLib(string img_path) {
                     if (!rockface_align(face_handle, &img, &((&face_array)->face[i]).box, NULL, &out_img)) { // 人脸关键点（5点）检测，矫正对齐成功
                         rockface_feature_t out_feature; // 人脸特征
                         if (!rockface_feature_extract(face_handle, &out_img, &out_feature)) { // 对已对齐的人脸图像提取人脸特征成功
-                            printf("name: %s\n", CompareFeatureWithFaceLib(out_feature).data());
-                            person_names_str += CompareFeatureWithFaceLib(out_feature) + ";";
+                            string cmp_res = CompareFeatureWithFaceLib(out_feature);
+                            if (cmp_res.length() > 0) {
+                                printf("name: %s\n", CompareFeatureWithFaceLib(out_feature).data());
+                                person_names_str += CompareFeatureWithFaceLib(out_feature) + ";";
+                            }
                         }
                     }
                 }
@@ -203,7 +206,6 @@ void GeneratePersonNameMap() {
         printf("Read json file error.\n");
         exit(1);
     }
-    // printf("%s\n", json_str);
     fclose(fp);
 
     // 将读取到的json字符串转换成cJson指针
@@ -221,17 +223,14 @@ void GeneratePersonNameMap() {
         for (int i = 0; i < staff_num; i++) {
             cJSON *staff = cJSON_GetArrayItem(staffs, i); // 获取单个员工数据
             if (staff != NULL && staff->type == cJSON_Object) {
-                // string person_name = "";
                 cJSON *person_name_val = cJSON_GetObjectItem(staff, "empname");
                 if (person_name_val != NULL && person_name_val->type == cJSON_String) {
-                    // person_name = person_name_val->valuestring;
                     char *person_name = cJSON_Print(person_name_val);
                     cJSON *cards = cJSON_GetObjectItem(staff, "cards");
                     int card_num = cJSON_GetArraySize(cards);
                     cJSON *last_card = cJSON_GetArrayItem(cards, card_num - 1);
                     cJSON *img_name_val = cJSON_GetObjectItem(last_card, "mame");
                     if (img_name_val != NULL && img_name_val->type == cJSON_String) {
-                        // string img_name = img_name_val->valuestring;
                         char *img_name = cJSON_Print(img_name_val);
                         string t1 = img_name;
                         string t2 = person_name;

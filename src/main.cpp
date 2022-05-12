@@ -1,22 +1,27 @@
-#include "SocketServer.h"
+// #include "SocketServer.h"
 #include "rockface_control.h"
 #include "read_camera.h"
+#include "SocketClient.h"
 
 
 int main(){  
-    ReadRtsp();
-    // InitRockface();
-    // GeneratePersonNameMap();
-    // std::vector<std::string> face_lib_files = GetPathJPGFiles(FACE_LIB_DATA_PATH);
+    InitRockface();
+    GeneratePersonNameMap();
+    std::vector<std::string> face_lib_files = GetPathJPGFiles(FACE_LIB_DATA_PATH);
 
-    // LoadFaceLibrary(face_lib_files);
+    LoadFaceLibrary(face_lib_files);
+    printf("Face lib loaded.\n");
 
-    // SocketServer socket_server = SocketServer();
-    // socket_server.Connect();
+    // 建立socket连接
+    SocketClient socket_client = SocketClient();
+    socket_client.Connect();
+    printf("Socket connected.\n");
 
+    printf("Start to read rtsp.\n");
+    ReadRtsp(socket_client);
 
-    // socket_server.Disconnet();
-    // ReleaseRockface();
+    socket_client.Disconnet();
+    ReleaseRockface();
     return 0;  
  }  
 

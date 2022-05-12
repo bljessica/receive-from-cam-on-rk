@@ -123,32 +123,32 @@ receive_from_cam_on_rk/fast:
 	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/build
 .PHONY : receive_from_cam_on_rk/fast
 
-src/SocketServer.o: src/SocketServer.cpp.o
+src/SocketClient.o: src/SocketClient.cpp.o
 
-.PHONY : src/SocketServer.o
+.PHONY : src/SocketClient.o
 
 # target to build an object file
-src/SocketServer.cpp.o:
-	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/SocketServer.cpp.o
-.PHONY : src/SocketServer.cpp.o
+src/SocketClient.cpp.o:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/SocketClient.cpp.o
+.PHONY : src/SocketClient.cpp.o
 
-src/SocketServer.i: src/SocketServer.cpp.i
+src/SocketClient.i: src/SocketClient.cpp.i
 
-.PHONY : src/SocketServer.i
+.PHONY : src/SocketClient.i
 
 # target to preprocess a source file
-src/SocketServer.cpp.i:
-	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/SocketServer.cpp.i
-.PHONY : src/SocketServer.cpp.i
+src/SocketClient.cpp.i:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/SocketClient.cpp.i
+.PHONY : src/SocketClient.cpp.i
 
-src/SocketServer.s: src/SocketServer.cpp.s
+src/SocketClient.s: src/SocketClient.cpp.s
 
-.PHONY : src/SocketServer.s
+.PHONY : src/SocketClient.s
 
 # target to generate assembly for a file
-src/SocketServer.cpp.s:
-	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/SocketServer.cpp.s
-.PHONY : src/SocketServer.cpp.s
+src/SocketClient.cpp.s:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/SocketClient.cpp.s
+.PHONY : src/SocketClient.cpp.s
 
 src/cJSON.o: src/cJSON.c.o
 
@@ -267,9 +267,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... receive_from_cam_on_rk"
 	@echo "... edit_cache"
-	@echo "... src/SocketServer.o"
-	@echo "... src/SocketServer.i"
-	@echo "... src/SocketServer.s"
+	@echo "... src/SocketClient.o"
+	@echo "... src/SocketClient.i"
+	@echo "... src/SocketClient.s"
 	@echo "... src/cJSON.o"
 	@echo "... src/cJSON.i"
 	@echo "... src/cJSON.s"
