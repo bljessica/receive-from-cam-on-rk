@@ -17,12 +17,9 @@ int main(){
     socket_client.Connect();
     printf("Socket connected.\n");
 
-    printf("Start to read rtsp.\n");
-    ReadRtsp(socket_client);
+    ReadImg(socket_client);
 
     socket_client.Disconnet();
     ReleaseRockface();
     return 0;  
- }  
-
-
+}  

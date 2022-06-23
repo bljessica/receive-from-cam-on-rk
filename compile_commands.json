@@ -1,0 +1,27 @@
+[
+{
+  "directory": "/home/jzhou/Desktop/documents/receive-from-cam-on-rk",
+  "command": "/home/jzhou/Desktop/documents/receive-from-cam-on-rk/../rk/prebuilts/gcc/linux-x86/arm/gcc-arm-8.3-2019.03-x86_64-arm-linux-gnueabihf/bin/arm-linux-gnueabihf-g++  --sysroot=/home/jzhou/Desktop/documents/receive-from-cam-on-rk/../rk/sysroot     -std=c++11 -pthread -g   -o CMakeFiles/receive_from_cam_on_rk.dir/src/rockface_control.cpp.o -c /home/jzhou/Desktop/documents/receive-from-cam-on-rk/src/rockface_control.cpp",
+  "file": "/home/jzhou/Desktop/documents/receive-from-cam-on-rk/src/rockface_control.cpp"
+},
+{
+  "directory": "/home/jzhou/Desktop/documents/receive-from-cam-on-rk",
+  "command": "/home/jzhou/Desktop/documents/receive-from-cam-on-rk/../rk/prebuilts/gcc/linux-x86/arm/gcc-arm-8.3-2019.03-x86_64-arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc  --sysroot=/home/jzhou/Desktop/documents/receive-from-cam-on-rk/../rk/sysroot   -g   -o CMakeFiles/receive_from_cam_on_rk.dir/src/cJSON.c.o   -c /home/jzhou/Desktop/documents/receive-from-cam-on-rk/src/cJSON.c",
+  "file": "/home/jzhou/Desktop/documents/receive-from-cam-on-rk/src/cJSON.c"
+},
+{
+  "directory": "/home/jzhou/Desktop/documents/receive-from-cam-on-rk",
+  "command": "/home/jzhou/Desktop/documents/receive-from-cam-on-rk/../rk/prebuilts/gcc/linux-x86/arm/gcc-arm-8.3-2019.03-x86_64-arm-linux-gnueabihf/bin/arm-linux-gnueabihf-g++  --sysroot=/home/jzhou/Desktop/documents/receive-from-cam-on-rk/../rk/sysroot     -std=c++11 -pthread -g   -o CMakeFiles/receive_from_cam_on_rk.dir/src/SocketClient.cpp.o -c /home/jzhou/Desktop/documents/receive-from-cam-on-rk/src/SocketClient.cpp",
+  "file": "/home/jzhou/Desktop/documents/receive-from-cam-on-rk/src/SocketClient.cpp"
+},
+{
+  "directory": "/home/jzhou/Desktop/documents/receive-from-cam-on-rk",
+  "command": "/home/jzhou/Desktop/documents/receive-from-cam-on-rk/../rk/prebuilts/gcc/linux-x86/arm/gcc-arm-8.3-2019.03-x86_64-arm-linux-gnueabihf/bin/arm-linux-gnueabihf-g++  --sysroot=/home/jzhou/Desktop/documents/receive-from-cam-on-rk/../rk/sysroot     -std=c++11 -pthread -g   -o CMakeFiles/receive_from_cam_on_rk.dir/src/read_camera.cpp.o -c /home/jzhou/Desktop/documents/receive-from-cam-on-rk/src/read_camera.cpp",
+  "file": "/home/jzhou/Desktop/documents/receive-from-cam-on-rk/src/read_camera.cpp"
+},
+{
+  "directory": "/home/jzhou/Desktop/documents/receive-from-cam-on-rk",
+  "command": "/home/jzhou/Desktop/documents/receive-from-cam-on-rk/../rk/prebuilts/gcc/linux-x86/arm/gcc-arm-8.3-2019.03-x86_64-arm-linux-gnueabihf/bin/arm-linux-gnueabihf-g++  --sysroot=/home/jzhou/Desktop/documents/receive-from-cam-on-rk/../rk/sysroot     -std=c++11 -pthread -g   -o CMakeFiles/receive_from_cam_on_rk.dir/src/main.cpp.o -c /home/jzhou/Desktop/documents/receive-from-cam-on-rk/src/main.cpp",
+  "file": "/home/jzhou/Desktop/documents/receive-from-cam-on-rk/src/main.cpp"
+}
+]

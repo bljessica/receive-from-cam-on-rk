@@ -54,6 +54,17 @@
         "valarray": "cpp",
         "complex": "cpp",
         "set": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "thread": "cpp",
+        "condition_variable": "cpp",
+        "list": "cpp",
+        "mutex": "cpp",
+        "rkmedia_vi_lib.h": "c",
+        "rkmedia_api.h": "c",
+        "bitset": "cpp",
+        "unordered_set": "cpp",
+        "regex": "cpp",
+        "future": "cpp",
+        "variant": "cpp"
     }
 }
