@@ -177,6 +177,33 @@ src/cJSON.c.s:
 	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/cJSON.c.s
 .PHONY : src/cJSON.c.s
 
+src/camrgb_control.o: src/camrgb_control.cpp.o
+
+.PHONY : src/camrgb_control.o
+
+# target to build an object file
+src/camrgb_control.cpp.o:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/camrgb_control.cpp.o
+.PHONY : src/camrgb_control.cpp.o
+
+src/camrgb_control.i: src/camrgb_control.cpp.i
+
+.PHONY : src/camrgb_control.i
+
+# target to preprocess a source file
+src/camrgb_control.cpp.i:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/camrgb_control.cpp.i
+.PHONY : src/camrgb_control.cpp.i
+
+src/camrgb_control.s: src/camrgb_control.cpp.s
+
+.PHONY : src/camrgb_control.s
+
+# target to generate assembly for a file
+src/camrgb_control.cpp.s:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/camrgb_control.cpp.s
+.PHONY : src/camrgb_control.cpp.s
+
 src/main.o: src/main.cpp.o
 
 .PHONY : src/main.o
@@ -231,6 +258,33 @@ src/read_camera.cpp.s:
 	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/read_camera.cpp.s
 .PHONY : src/read_camera.cpp.s
 
+src/rga_control.o: src/rga_control.c.o
+
+.PHONY : src/rga_control.o
+
+# target to build an object file
+src/rga_control.c.o:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/rga_control.c.o
+.PHONY : src/rga_control.c.o
+
+src/rga_control.i: src/rga_control.c.i
+
+.PHONY : src/rga_control.i
+
+# target to preprocess a source file
+src/rga_control.c.i:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/rga_control.c.i
+.PHONY : src/rga_control.c.i
+
+src/rga_control.s: src/rga_control.c.s
+
+.PHONY : src/rga_control.s
+
+# target to generate assembly for a file
+src/rga_control.c.s:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/rga_control.c.s
+.PHONY : src/rga_control.c.s
+
 src/rockface_control.o: src/rockface_control.cpp.o
 
 .PHONY : src/rockface_control.o
@@ -258,6 +312,60 @@ src/rockface_control.cpp.s:
 	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/rockface_control.cpp.s
 .PHONY : src/rockface_control.cpp.s
 
+src/rockface_ctl.o: src/rockface_ctl.cpp.o
+
+.PHONY : src/rockface_ctl.o
+
+# target to build an object file
+src/rockface_ctl.cpp.o:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/rockface_ctl.cpp.o
+.PHONY : src/rockface_ctl.cpp.o
+
+src/rockface_ctl.i: src/rockface_ctl.cpp.i
+
+.PHONY : src/rockface_ctl.i
+
+# target to preprocess a source file
+src/rockface_ctl.cpp.i:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/rockface_ctl.cpp.i
+.PHONY : src/rockface_ctl.cpp.i
+
+src/rockface_ctl.s: src/rockface_ctl.cpp.s
+
+.PHONY : src/rockface_ctl.s
+
+# target to generate assembly for a file
+src/rockface_ctl.cpp.s:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/rockface_ctl.cpp.s
+.PHONY : src/rockface_ctl.cpp.s
+
+src/video_common.o: src/video_common.c.o
+
+.PHONY : src/video_common.o
+
+# target to build an object file
+src/video_common.c.o:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/video_common.c.o
+.PHONY : src/video_common.c.o
+
+src/video_common.i: src/video_common.c.i
+
+.PHONY : src/video_common.i
+
+# target to preprocess a source file
+src/video_common.c.i:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/video_common.c.i
+.PHONY : src/video_common.c.i
+
+src/video_common.s: src/video_common.c.s
+
+.PHONY : src/video_common.s
+
+# target to generate assembly for a file
+src/video_common.c.s:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/video_common.c.s
+.PHONY : src/video_common.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -273,15 +381,27 @@ help:
 	@echo "... src/cJSON.o"
 	@echo "... src/cJSON.i"
 	@echo "... src/cJSON.s"
+	@echo "... src/camrgb_control.o"
+	@echo "... src/camrgb_control.i"
+	@echo "... src/camrgb_control.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
 	@echo "... src/read_camera.o"
 	@echo "... src/read_camera.i"
 	@echo "... src/read_camera.s"
+	@echo "... src/rga_control.o"
+	@echo "... src/rga_control.i"
+	@echo "... src/rga_control.s"
 	@echo "... src/rockface_control.o"
 	@echo "... src/rockface_control.i"
 	@echo "... src/rockface_control.s"
+	@echo "... src/rockface_ctl.o"
+	@echo "... src/rockface_ctl.i"
+	@echo "... src/rockface_ctl.s"
+	@echo "... src/video_common.o"
+	@echo "... src/video_common.i"
+	@echo "... src/video_common.s"
 .PHONY : help
 
 

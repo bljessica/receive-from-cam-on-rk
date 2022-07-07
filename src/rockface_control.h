@@ -1,34 +1,64 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <vector>
-#include <string>
-#include <dirent.h>
-#include <cstring>
-#include <opencv2/opencv.hpp>
-#include <sys/stat.h>
-#include "cJSON.h"
+/*
+ * Copyright (C) 2019 Rockchip Electronics Co., Ltd.
+ * author: Zhihua Wang, hogan.wang@rock-chips.com
+ *
+ * This software is available to you under a choice of one of two
+ * licenses.  You may choose to be licensed under the terms of the GNU
+ * General Public License (GPL), available from the file
+ * COPYING in the main directory of this source tree, or the
+ * OpenIB.org BSD license below:
+ *
+ *     Redistribution and use in source and binary forms, with or
+ *     without modification, are permitted provided that the following
+ *     conditions are met:
+ *
+ *      - Redistributions of source code must retain the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer.
+ *
+ *      - Redistributions in binary form must reproduce the above
+ *        copyright notice, this list of conditions and the following
+ *        disclaimer in the documentation and/or other materials
+ *        provided with the distribution.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+#ifndef __ROCKFACE_CONTROL_H__
+#define __ROCKFACE_CONTROL_H__
 
-#include "rockface/rockface.h"
-// #include "camrgb_control.h"
+#include <rockface/rockface.h>
+#include <stdbool.h>
+// #include <string>
+// #ifdef __cplusplus
+// extern "C" {
+// #endif
+#include "rga_control.h"
 
 
-#define LICENSE_PATH "/data/rkfacial_data/key.lic"
-#define FACE_LIB_DATA_PATH "/data/rkfacial_data/white_list"
-#define FACE_LIB_PERSON_JSON_PATH "/data/rkfacial_data/white_list/wlist.json"
-#define SIMILARITY_THRESHOLD 0.3 // 两个人脸特征的相似度 (使用欧式距离)，可以设置阈值(建议阈值范围0.7~1.3，可根据不同人脸库和应用场景调整)，如果小于阈值可以判断为同一人
-#define IMG_WIDTH 1280
-#define IMG_HEIGHT 720
+int rockface_control_init(void);
+void rockface_control_init_thread(void);
+void rockface_control_exit(void);
+int rockface_control_get_path_feature(const char *path, void *feature);
+void rockface_control_convert_detect(void *ptr, int width, int height, RgaSURF_FORMAT fmt, int rotation, int id, rockface_image_t* img);
+int rockface_control_convert_feature(void *ptr, int width, int height, RgaSURF_FORMAT fmt, int rotation, int id);
+void rockface_control_set_delete(void);
+void rockface_control_set_register(void);
+int rockface_control_convert_ir(void *ptr, int width, int height, RgaSURF_FORMAT fmt, int rotation);
+void rockface_control_delete_all(void);
+int rockface_control_delete(int id, const char *pname, bool notify, bool del);
+int rockface_control_add_ui(int id, const char *name, void *feature);
+int rockface_control_add_web(int id, const char *name);
+int rockface_control_add_local(const char *name);
+void rockface_control_detect_model(int mode);
+// #ifdef __cplusplus
+// }
+// #endif
 
-using namespace std;
-
-
-void InitRockface();
-std::vector<string> GetPathJPGFiles(string path);
-bool AdjustROIPos(rockface_det_t face, rockface_image_t img);
-void LoadFaceLibrary(std::vector<string> image_files);
-void YUV2RockfaceImage(string yuv_file_path, rockface_image_t *img);
-string CompareImageWithFaceLib(string img_path);
-string CompareFeatureWithFaceLib(rockface_feature_t feature);
-void GeneratePersonNameMap();
-void PrintPersonNameMap();
-void ReleaseRockface();
+#endif

@@ -1,5 +1,137 @@
 #include "read_camera.h"
-#include "rockface_control.h"
+#include "rockface_ctl.h"
+
+static AVFormatContext *formatContext = NULL;
+static AVCodecContext *codecCtx = NULL;
+struct SwsContext *swsContext = NULL;
+static char errors[200] = { 0 };
+const char *outName = "/data/raw";
+
+void ReadRtsp(SocketClient socket_client) {
+    // const char* srcMedia = "rtsp://admin:123456jl@172.16.55.31:554";
+    const char* srcMedia = "rtsp://admin:123456jl@172.16.55.31:554/ISAPI/streaming/channels/103";
+    //
+    av_log_set_level(AV_LOG_INFO);
+    av_register_all();
+    //获取输入上下文
+    int ret = avformat_open_input(&formatContext, srcMedia, NULL, NULL);
+    if (ret != 0) {
+        av_strerror(ret, errors, 200);
+        av_log(NULL, AV_LOG_WARNING, "avformat_open_input error: ret=%d, msg=%s\n", ret, errors);
+        exit(1);
+    }
+    ret = avformat_find_stream_info(formatContext, NULL);
+    if (ret != 0) {
+        av_strerror(ret, errors, 200);
+        av_log(NULL, AV_LOG_WARNING, "avformat_find_stream_info error: ret=%d, msg=%s\n", ret, errors);
+        exit(1);
+    }
+    av_dump_format(formatContext, 0, srcMedia, 0);
+    printf("===================================\n");
+    int inViIndex = av_find_best_stream(formatContext, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
+    AVStream *inViStream = formatContext->streams[inViIndex];
+    //获取输入编解码器
+    AVCodec *codec = avcodec_find_decoder(inViStream->codec->codec_id);
+    codecCtx = avcodec_alloc_context3(NULL);
+    //获取输入编解码器上下文
+    ret = avcodec_parameters_to_context(codecCtx, inViStream->codecpar);
+    ret = avcodec_open2(codecCtx, codec, NULL);
+    //获取sws上下文
+    swsContext = sws_getContext(codecCtx->width, codecCtx->height, codecCtx->pix_fmt,
+    codecCtx->width, codecCtx->height, AV_PIX_FMT_BGR24, SWS_BICUBIC, NULL, NULL, NULL);
+    AVPacket avPacket;
+    av_init_packet(&avPacket);
+    int frameCount = 1;
+    AVFrame *avFrame = av_frame_alloc();
+    //获取packet
+    while (av_read_frame(formatContext, &avPacket) >= 0) {
+        if (avPacket.stream_index == inViIndex) {
+            //获取视频帧
+            decodeWriteFrame(&avPacket, avFrame, &frameCount, 0, socket_client);
+        }
+        av_packet_unref(&avPacket);
+        usleep(200);
+    }
+    decodeWriteFrame(&avPacket ,avFrame , &frameCount, 1, socket_client);
+    //
+    sws_freeContext(swsContext);
+    avcodec_free_context(&codecCtx);
+    avformat_close_input(&formatContext);
+}
+
+
+void saveBmp(AVFrame *avFrame, char *imgName, SocketClient socket_client) {
+    int w = avFrame->width;
+    int h = avFrame->height;
+    int size = avpicture_get_size(AV_PIX_FMT_BGR24, w, h);
+    uint8_t *buffer = (uint8_t*)av_malloc(size * sizeof(uint8_t));
+    AVFrame *frameRgb = av_frame_alloc();
+    avpicture_fill((AVPicture*)frameRgb, buffer, AV_PIX_FMT_BGR24, w, h);
+    sws_scale(swsContext, avFrame->data, avFrame->linesize, 0, h, frameRgb->data, frameRgb->linesize);
+    //2 构造 BITMAPINFOHEADER
+    BITMAPINFOHEADER header;
+    header.biSize = sizeof(BITMAPINFOHEADER);
+    header.biWidth = w;
+    header.biHeight = h * (-1);
+    header.biBitCount = 24;
+    header.biCompression = 0;
+    header.biSizeImage = 0;
+    header.biClrImportant = 0;
+    header.biClrUsed = 0;
+    header.biXPelsPerMeter = 0;
+    header.biYPelsPerMeter = 0;
+    header.biPlanes = 1;
+    //3 构造文件头
+    BITMAPFILEHEADER bmpFileHeader = { 0, };
+    //HANDLE hFile = NULL;
+    DWORD dwTotalWriten = 0;
+    //DWORD dwWriten;
+    bmpFileHeader.bfType = 0x4d42; //'BM';
+    bmpFileHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + size;
+    bmpFileHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+    FILE *pFile = fopen(imgName, "wb");
+    fwrite(&bmpFileHeader, sizeof(BITMAPFILEHEADER), 1, pFile);
+    fwrite(&header, sizeof(BITMAPINFOHEADER), 1, pFile);
+    fwrite(frameRgb->data[0], 1, size, pFile);
+    fclose(pFile);
+    av_freep(&frameRgb);
+    av_free(frameRgb);
+    av_free(buffer);
+    // ReadImg(imgName, socket_client);
+}
+
+
+void ReadImg(char* imgName, SocketClient socket_client) {
+    // printf("last: %s, new: %s\n", last_img_path.c_str(), img_path.c_str());
+    printf("Recog************%s\n", imgName);
+    // 进行人脸识别
+    std::string cmp_res = CompareImageWithFaceLib(imgName);
+    if (cmp_res.length() > 0) {
+        // 发送人脸识别结果
+        printf("send*****************: %s\n", cmp_res.data());
+        socket_client.SendMsg(cmp_res.data());
+    }
+}
+
+int decodeWriteFrame(AVPacket *avPacket, AVFrame* avFrame, int *frameCount, int last, SocketClient socket_client) {
+    int getFrame = 0;
+    char buffer[200] = {0};
+    //解码
+    int len = avcodec_decode_video2(codecCtx, avFrame, &getFrame, avPacket);
+    if (len < 0) {
+        av_strerror(len, errors, 200);
+        av_log(NULL, AV_LOG_WARNING, "avcodec_decode_video2 error: ret=%d, msg=%s, frame=%d\n", len, errors, frameCount);
+        return len;
+    }
+    //保存bmp
+    if (getFrame) {
+        fflush(stdout);
+        snprintf(buffer, 200, "%s/%d.bmp", outName, *frameCount);
+        saveBmp(avFrame, buffer, socket_client);
+        (*frameCount)++;
+    }
+    return 0;
+}
 
 
 // 读取rtsp流
@@ -7,28 +139,27 @@ void ReadImg(SocketClient socket_client) {
     char buf[1024];
     string last_img_path = ""; // 记录上一次识别的图片索引
     while (true) {
-        string img_path = GetNewestImgPath();
+        if (GetRawImgNum() == 0) continue;
+        string img_path = GetNewestRawImgPath();
         // printf("last: %s, new: %s\n", last_img_path.c_str(), img_path.c_str());
         if (strcmp(last_img_path.c_str(), img_path.c_str()) != 0) {
-            printf("Recog************%s\n", img_path.c_str());
-            YUV2JPG(img_path, OUT_IMG_PATH);
+            printf("Recog************%s, %s\n", img_path.c_str(), (char*)img_path.c_str());
             // 进行人脸识别
-            std::string cmp_res = CompareImageWithFaceLib(img_path);
+            std::string cmp_res = CompareImageWithFaceLib((char*)img_path.c_str());
             if (cmp_res.length() > 0) {
                 // 发送人脸识别结果
-                printf("send*****************: %s\n", cmp_res.data());
+                printf("Send*****************: %s\n", cmp_res.data());
                 socket_client.SendMsg(cmp_res.data());
             } 
             last_img_path = img_path;
         }
+        usleep(200);
     }
 }
 
 
-void YUV2JPG(string inputFileName, string savepath) 
-{
-	int iImageSize;
-	iImageSize = IMG_WIDTH * IMG_HEIGHT * 3 / 2;
+void ReadYUV(string inputFileName, rockface_image_t* img) {
+	int iImageSize = iImageSize = IMG_WIDTH * IMG_HEIGHT * 3 / 2;
 	
 	FILE * fpln;
 	fpln = fopen(inputFileName.data(), "rb+");
@@ -42,31 +173,45 @@ void YUV2JPG(string inputFileName, string savepath)
 	
 	unsigned char *pYUVbuf = new unsigned char[iImageSize];
 	fread(pYUVbuf, iImageSize * sizeof(unsigned char), 1, fpln);
+    fclose(fpln);
 	memcpy(yuvImg.data, pYUVbuf, iImageSize * sizeof(unsigned char));
 	cv::cvtColor(yuvImg, rgbImg, CV_YUV2RGBA_NV12);
+
+    // img->data = (uint8_t*)malloc(rgbImg.total()*rgbImg.elemSize());
+	// if(!img->data) {
+    //     printf("no data in image\n");
+    //     return;
+    // }
+	// memcpy(img->data, rgbImg.data, rgbImg.total()*rgbImg.elemSize());
+    // img->height = rgbImg.rows;
+    // img->width = rgbImg.cols;
+    // img->size = rgbImg.total()*rgbImg.elemSize();//使用tatal()返回数组元素（如果该数组表示图像的像素数）的数目和每个像素占的字节
+    // img->pixel_format = rgbImg.type()==CV_8UC3?ROCKFACE_PIXEL_FORMAT_BGR888:ROCKFACE_PIXEL_FORMAT_GRAY8;
+    // img->is_prealloc_buf = 1;
+    // img->original_ratio = ((float)img->width)/img->height;
  
-	cv::imwrite(savepath, rgbImg);
+	cv::imwrite(OUT_IMG_PATH, rgbImg);
 }
 
 
 // string GetNewestImgName() {
-    // DIR *p_dir;
-    // struct dirent *ptr;
-    // if (!(p_dir = opendir(IMG_DIR_PATH))) {
-    //     printf("Can not open img dir path.\n");
-    //     return 0;
-    // }
-    // string newest_img_path;
-    // while ((ptr = readdir(p_dir)) != 0) {
-    //     newest_img_path = ptr->d_name;
-    //     printf("cur newest_img_path: %s\n", newest_img_path.data());
-    // }
-    // closedir(p_dir);
-    // return newest_img_path;
+//     DIR *p_dir;
+//     struct dirent *ptr;
+//     if (!(p_dir = opendir(IMG_DIR_PATH))) {
+//         printf("Can not open img dir path.\n");
+//         return 0;
+//     }
+//     string newest_img_path;
+//     while ((ptr = readdir(p_dir)) != 0) {
+//         newest_img_path = ptr->d_name;
+//         printf("cur newest_img_path: %s\n", newest_img_path.data());
+//     }
+//     closedir(p_dir);
+//     return newest_img_path;
 // }
 
 
-int GetImgNum() {
+int GetRawImgNum() {
     int file_num = 0;
     DIR *p_dir;
     struct dirent *ptr;
@@ -84,14 +229,19 @@ int GetImgNum() {
 }
 
 
-string GetNewestImgPath() {
-    int img_num = GetImgNum();
-    string num_str = to_string(img_num - 2);
-    int padding_zero_num = 4 - num_str.length();
-    for (int i = 0; i < padding_zero_num; i++) {
-        num_str = "0" + num_str;
-    }
-    string full_path = IMG_DIR_PATH + num_str + IMG_SUFFIX;
+
+string GetNewestRawImgPath() {
+    // int img_num = GetRawImgNum();
+    // string num_str = to_string(img_num - 2);
+    // int padding_zero_num = 4 - num_str.length();
+    // for (int i = 0; i < padding_zero_num; i++) {
+    //     num_str = "0" + num_str;
+    // }
+    // string full_path = IMG_DIR_PATH + num_str + IMG_SUFFIX;
+    // return full_path;
+    int img_num = GetRawImgNum();
+    string num_str = to_string(img_num - 1);
+    string full_path = IMG_DIR_PATH + num_str + ".bmp";
     return full_path;
 }
 

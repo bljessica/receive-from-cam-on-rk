@@ -65,6 +65,8 @@
         "unordered_set": "cpp",
         "regex": "cpp",
         "future": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "rkfacial.h": "c",
+        "read_camera.h": "c"
     }
 }
