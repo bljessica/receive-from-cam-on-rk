@@ -1,21 +1,20 @@
-#include <pthread.h>
 #include <thread>
+
+#include "rtsp_lib.h"
+#include "Decoder.h"
 
 #include "rockface_ctl.h"
 #include "read_camera.h"
 #include "SocketClient.h"
-#include "camrgb_control.h"
 
-#include "rtsp_lib.h"
-#include "Decoder.h"
-#include "Decoder.cpp"
 
 MyDecoder decoder = MyDecoder();
 
+
 static void _on_video_data(const void *data, size_t len) {
-  decoder.Decode_h264((void *)data, len);
-  printf("**************************\n");
+  decoder.Decode_h264((void *)data, len); // 解码h264数据
 }
+
 
 rtsp_event_handler_t evt_handler = {
     .on_video_data = _on_video_data,
@@ -23,8 +22,8 @@ rtsp_event_handler_t evt_handler = {
 
 
 int main(){  
-    // system("rm ./imgs/*");
     system("rm /data/raw/*");
+	// 初始化人脸识别，读入人脸库
     InitRockface();
     printf("Rockface initialized.\n");
     GeneratePersonNameMap();
@@ -38,23 +37,13 @@ int main(){
     socket_client.Connect();
     printf("Socket connected.\n");
 
+	// 人脸识别
     thread face_recognition_thread(ReadImg, socket_client);
     face_recognition_thread.detach();
+	// 读摄像头rtsp流
     start_rtspclient("172.16.55.31", "/ISAPI/streaming/channels/102", evt_handler, "554", "", "admin", "123456jl");
-
-    // thread face_recognition_thread(ReadImg, socket_client);
-    // face_recognition_thread.detach();
-    // ReadRtsp(socket_client);
-
-    // pthread_t face_recognition_thread_id;
-    // int ret = pthread_create(&face_recognition_thread_id, NULL, ReadImg, &socket_client)
-    // camrgb_control_init(socket_client);
-    // sleep(1000);
-
-    // ReadImg(socket_client);
-
+   
     socket_client.Disconnet();
-    // camrgb_control_exit();
     ReleaseRockface();
     return 0;  
 }  

@@ -130,26 +130,6 @@ void LoadFaceLibrary(std::vector<string> image_files) {
 }
 
 
-// 读取yuv文件，构造rockface_image_t结构
-void YUV2RockfaceImage(string yuv_file_path, rockface_image_t *img) {
-    // rockface_image_t *img;
-    FILE * fp;
-	fp = fopen(yuv_file_path.c_str(), "rb+");
-	if (fp == NULL) {
-		printf("Read yuv error.\n");
-	}
-    img->size = IMG_WIDTH * IMG_HEIGHT * 3 / 2;
-    img->data = (uint8_t*)malloc(img->size * sizeof(uint8_t));
-    fread(img->data, img->size * sizeof(uint8_t), 1, fp);
-    fclose(fp);
-    img->is_prealloc_buf = 1;
-    img->pixel_format = ROCKFACE_PIXEL_FORMAT_RGB888;
-    img->width = IMG_WIDTH;
-    img->height = IMG_HEIGHT;
-    img->original_ratio = ((float)img->width) / img->height;
-    printf("2 %x\n", img->data);
-}
-
 string CompareImageWithFaceLib(char* img_name) {
     string person_names_str = "";
     rockface_image_t img;
@@ -167,8 +147,8 @@ string CompareImageWithFaceLib(char* img_name) {
                     if (!rockface_feature_extract(face_handle, &out_img, &out_feature)) { // 对已对齐的人脸图像提取人脸特征成功
                         string cmp_res = CompareFeatureWithFaceLib(out_feature);
                         if (cmp_res.length() > 0) {
-                            printf("name: %s\n", CompareFeatureWithFaceLib(out_feature).data());
-                            person_names_str += CompareFeatureWithFaceLib(out_feature) + ";";
+                            printf("name: %s\n", cmp_res.data());
+                            person_names_str += cmp_res + ";";
                         }
                     }
                 }
@@ -178,83 +158,8 @@ string CompareImageWithFaceLib(char* img_name) {
     }
     rockface_image_release(&img);
     memset(&face_array, 0, sizeof(rockface_det_array_t));
-    // free(img->data);
-    // memset(img, 0, sizeof(rockface_image_t));
     return person_names_str;
 }
-
-
-// 识别一帧图像中的所有人脸，返回所有识别人名字的拼接字符串
-string CompareImageWithFaceLib(rockface_image_t* img) {
-    string person_names_str = "";
-    // rockface_image_t i;
-    // rockface_image_read("./cur_frame.jpg", &i, 1); // 读取图像文件成功
-    // YUV2RockfaceImage(img_path, &img); // 读取图像文件
-    // printf("2.5 %x, w: %d, h: %d, size: %d, is: %d\n", i.data, i.width, i.height, i.size, i.is_prealloc_buf);
-    // printf("2.5 %x, w: %d, h: %d, size: %d, is: %d\n", img->data, img->width, img->height, img->size, img->is_prealloc_buf);
-    // img = &i;
-    rockface_det_array_t face_array;
-    memset(&face_array, 0, sizeof(rockface_det_array_t));
-    if (!rockface_detect(face_handle, img, &face_array)) { // 人脸检测成功
-        int count = (&face_array)->count;
-        printf("detect count: %d\n", count);
-        for (int i = 0; i < count; i++) {
-            rockface_image_t out_img; // 对齐后的人脸图像
-            if (AdjustROIPos(&((&face_array)->face[i]).box, img)) {
-                if (!rockface_align(face_handle, img, &((&face_array)->face[i]).box, NULL, &out_img)) { // 人脸关键点（5点）检测，矫正对齐成功
-                    rockface_feature_t out_feature; // 人脸特征
-                    if (!rockface_feature_extract(face_handle, &out_img, &out_feature)) { // 对已对齐的人脸图像提取人脸特征成功
-                        string cmp_res = CompareFeatureWithFaceLib(out_feature);
-                        if (cmp_res.length() > 0) {
-                            printf("name: %s\n", CompareFeatureWithFaceLib(out_feature).data());
-                            person_names_str += CompareFeatureWithFaceLib(out_feature) + ";";
-                        }
-                    }
-                }
-            }
-            rockface_image_release(&out_img);
-        }
-    }
-    // rockface_image_release(img);
-    // free(img->data);
-    // memset(img, 0, sizeof(rockface_image_t));
-    return person_names_str;
-}
-
-
-// // 识别一帧图像中的所有人脸，返回所有识别人名字的拼接字符串
-// string CompareImageWithFaceLib(string img_path) {
-//     string person_names_str = "";
-//     rockface_image_t img;
-//     rockface_image_read(img_path.c_str(), &img, 1); // 读取图像文件成功
-//     // printf("img size: %d\n", img.size);
-//     // YUV2RockfaceImage(img_path, &img); // 读取图像文件
-//     // printf("2.5 %x\n", img.data);
-//     rockface_det_array_t face_array;
-//     memset(&face_array, 0, sizeof(rockface_det_array_t));
-//     if (!rockface_detect(face_handle, &img, &face_array)) { // 人脸检测成功
-//         // printf("3\n");
-//         int count = (&face_array)->count;
-//         for (int i = 0; i < count; i++) {
-//             rockface_image_t out_img; // 对齐后的人脸图像
-//             if (AdjustROIPos(&((&face_array)->face[i]).box, img)) {
-//                 if (!rockface_align(face_handle, &img, &((&face_array)->face[i]).box, NULL, &out_img)) { // 人脸关键点（5点）检测，矫正对齐成功
-//                     rockface_feature_t out_feature; // 人脸特征
-//                     if (!rockface_feature_extract(face_handle, &out_img, &out_feature)) { // 对已对齐的人脸图像提取人脸特征成功
-//                         string cmp_res = CompareFeatureWithFaceLib(out_feature);
-//                         if (cmp_res.length() > 0) {
-//                             printf("name: %s\n", CompareFeatureWithFaceLib(out_feature).data());
-//                             person_names_str += CompareFeatureWithFaceLib(out_feature) + ";";
-//                         }
-//                     }
-//                 }
-//             }
-//             rockface_image_release(&out_img);
-//         }
-//     }
-//     rockface_image_release(&img);
-//     return person_names_str;
-// }
 
 
 // 将特征与人脸库特征作比对，返回人名

@@ -12,19 +12,15 @@ SET(CMAKE_SYSROOT ${PROJECT_ROOT_PATH}/../rk/sysroot)
 set(CMAKE_C_COMPILER ${PROJECT_ROOT_PATH}/../rk/prebuilts/gcc/linux-x86/arm/gcc-arm-8.3-2019.03-x86_64-arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc)
 set(CMAKE_CXX_COMPILER ${PROJECT_ROOT_PATH}/../rk/prebuilts/gcc/linux-x86/arm/gcc-arm-8.3-2019.03-x86_64-arm-linux-gnueabihf/bin/arm-linux-gnueabihf-g++)
 
-# include_directories(${PROJECT_ROOT_PATH}/include)
-# link_directories(${PROJECT_ROOT_PATH}/lib)
-
 include_directories(
     ${PROJECT_ROOT_PATH}/../rk/sysroot/usr/include
     ${PROJECT_ROOT_PATH}/include/easymedia
-    # ${PROJECT_ROOT_PATH}/include/ffmpeg
     ${PROJECT_ROOT_PATH}/include/rtsp
 )
+
 link_directories(
     ${PROJECT_ROOT_PATH}/../rk/sysroot/usr/lib
-    # ${PROJECT_ROOT_PATH}/lib/ffmpeg
-    ${PROJECT_ROOT_PATH}/lib/rtsp
+    ${PROJECT_ROOT_PATH}/lib
 )
 
 # 查找路径下的所有源文件（因为头文件和实现分离，所以要把所有源文件都添加进来）
@@ -38,16 +34,8 @@ add_executable(${CMAKE_PROJECT_NAME} ${DIR_SRCS})
 target_link_libraries(${CMAKE_PROJECT_NAME}
     rtspreader
     easymedia
-    rkaiq
-    # rkfacial
-    rga
     rockface
-    # jpeglib
     opencv_core
 	opencv_imgproc
 	opencv_imgcodecs
-    # avformat
-	# avcodec
-    # swscale
-	# avutil
 )

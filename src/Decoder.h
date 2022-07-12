@@ -12,7 +12,6 @@
 #include "key_string.h"
 #include "media_config.h"
 #include "utils.h"
-
 #include "decoder.h"
 
 #include <opencv2/opencv.hpp>
@@ -20,11 +19,7 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 
-// using namespace std;
-
 #define MPI_DEC_STREAM_SIZE 4096
-// int imgcount = 0;
-// using namespace easymedia;
 
 #pragma once
 class MyDecoder
