@@ -6,6 +6,21 @@
 #include "SocketClient.h"
 #include "camrgb_control.h"
 
+#include "rtsp_lib.h"
+#include "Decoder.h"
+#include "Decoder.cpp"
+
+MyDecoder decoder = MyDecoder();
+
+static void _on_video_data(const void *data, size_t len) {
+  decoder.Decode_h264((void *)data, len);
+  printf("**************************\n");
+}
+
+rtsp_event_handler_t evt_handler = {
+    .on_video_data = _on_video_data,
+};
+
 
 int main(){  
     // system("rm ./imgs/*");
@@ -25,14 +40,15 @@ int main(){
 
     thread face_recognition_thread(ReadImg, socket_client);
     face_recognition_thread.detach();
+    start_rtspclient("172.16.55.31", "/ISAPI/streaming/channels/102", evt_handler, "554", "", "admin", "123456jl");
 
-    ReadRtsp(socket_client);
+    // thread face_recognition_thread(ReadImg, socket_client);
+    // face_recognition_thread.detach();
+    // ReadRtsp(socket_client);
 
     // pthread_t face_recognition_thread_id;
     // int ret = pthread_create(&face_recognition_thread_id, NULL, ReadImg, &socket_client)
-    
     // camrgb_control_init(socket_client);
-    
     // sleep(1000);
 
     // ReadImg(socket_client);

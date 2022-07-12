@@ -15,14 +15,14 @@
 #include <opencv2/imgproc.hpp>
 // #include "jpeglib.h"
 
-extern "C" {
-    #include <libavcodec/avcodec.h>
-    #include <libavformat/avformat.h>
-    #include <libswscale/swscale.h>
-    #include <libavformat/version.h>
-    #include <libavutil/time.h>
-    #include <libavutil/mathematics.h>
-}
+// extern "C" {
+//     #include <libavcodec/avcodec.h>
+//     #include <libavformat/avformat.h>
+//     #include <libswscale/swscale.h>
+//     #include <libavformat/version.h>
+//     #include <libavutil/time.h>
+//     #include <libavutil/mathematics.h>
+// }
 
 #include "SocketClient.h"
 #include "rockface/rockface.h"
@@ -35,35 +35,35 @@ extern "C" {
 
 #define RTSP_URL "rtsp://admin:123456jl@172.16.55.31:554"
 #define OUT_IMG_PATH "./cur_frame.jpg"
-#define IMG_WIDTH 704
-#define IMG_HEIGHT 576
+#define IMG_WIDTH 640
+#define IMG_HEIGHT 480
 #define IMG_DIR_PATH "/data/raw/"
 #define IMG_SUFFIX ".raw"
 
 typedef unsigned char  BYTE;	// 定义BYTE类型，占1个字节
 
-#pragma pack(2) // 节对齐方式为2字节对齐
- typedef struct tagBITMAPFILEHEADER {
-    WORD bfType;
-    DWORD bfSize;
-    WORD bfReserved1;
-    WORD bfReserved2;
-    DWORD bfOffBits;
-} BITMAPFILEHEADER, *PBITMAPFILEHEADER;
+// #pragma pack(2) // 节对齐方式为2字节对齐
+//  typedef struct tagBITMAPFILEHEADER {
+//     WORD bfType;
+//     DWORD bfSize;
+//     WORD bfReserved1;
+//     WORD bfReserved2;
+//     DWORD bfOffBits;
+// } BITMAPFILEHEADER, *PBITMAPFILEHEADER;
 
-typedef struct tagBITMAPINFOHEADER {
-    DWORD biSize;
-    LONG biWidth;
-    LONG biHeight;
-    WORD biPlanes;
-    WORD biBitCount;
-    DWORD biCompression;
-    DWORD biSizeImage;
-    LONG biXPelsPerMeter;
-    LONG biYPelsPerMeter;
-    DWORD biClrUsed;
-    DWORD biClrImportant;
-} BITMAPINFOHEADER, *PBITMAPINFOHEADER;
+// typedef struct tagBITMAPINFOHEADER {
+//     DWORD biSize;
+//     LONG biWidth;
+//     LONG biHeight;
+//     WORD biPlanes;
+//     WORD biBitCount;
+//     DWORD biCompression;
+//     DWORD biSizeImage;
+//     LONG biXPelsPerMeter;
+//     LONG biYPelsPerMeter;
+//     DWORD biClrUsed;
+//     DWORD biClrImportant;
+// } BITMAPINFOHEADER, *PBITMAPINFOHEADER;
 
 using namespace std;
 // using namespace cv;
@@ -74,9 +74,10 @@ string GetNewestRawImgPath();
 int GetRawImgNum();
 // string GetNewestImgPath();
 void ReadYUV(string inputFileName, rockface_image_t* img);
-void ReadRtsp(SocketClient socket_client);
-void saveBmp(AVFrame *avFrame, char *imgName, SocketClient socket_client);
-int decodeWriteFrame(AVPacket *avPacket, AVFrame* avFrame, int *frameCount, int last, SocketClient socket_client) ;
+// void ReadRtsp(SocketClient socket_client);
+// void saveBmp(AVFrame *avFrame, char *imgName, SocketClient socket_client);
+// int decodeWriteFrame(AVPacket *avPacket, AVFrame* avFrame, int *frameCount, int last, SocketClient socket_client) ;
+
 // extern "C" {
 // #include <libavcodec/avcodec.h>
 // #include <libavformat/avformat.h>

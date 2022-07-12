@@ -123,6 +123,33 @@ receive_from_cam_on_rk/fast:
 	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/build
 .PHONY : receive_from_cam_on_rk/fast
 
+src/Decoder.o: src/Decoder.cpp.o
+
+.PHONY : src/Decoder.o
+
+# target to build an object file
+src/Decoder.cpp.o:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/Decoder.cpp.o
+.PHONY : src/Decoder.cpp.o
+
+src/Decoder.i: src/Decoder.cpp.i
+
+.PHONY : src/Decoder.i
+
+# target to preprocess a source file
+src/Decoder.cpp.i:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/Decoder.cpp.i
+.PHONY : src/Decoder.cpp.i
+
+src/Decoder.s: src/Decoder.cpp.s
+
+.PHONY : src/Decoder.s
+
+# target to generate assembly for a file
+src/Decoder.cpp.s:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/Decoder.cpp.s
+.PHONY : src/Decoder.cpp.s
+
 src/SocketClient.o: src/SocketClient.cpp.o
 
 .PHONY : src/SocketClient.o
@@ -375,6 +402,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... receive_from_cam_on_rk"
 	@echo "... edit_cache"
+	@echo "... src/Decoder.o"
+	@echo "... src/Decoder.i"
+	@echo "... src/Decoder.s"
 	@echo "... src/SocketClient.o"
 	@echo "... src/SocketClient.i"
 	@echo "... src/SocketClient.s"

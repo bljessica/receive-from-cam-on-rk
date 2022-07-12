@@ -17,11 +17,14 @@ set(CMAKE_CXX_COMPILER ${PROJECT_ROOT_PATH}/../rk/prebuilts/gcc/linux-x86/arm/gc
 
 include_directories(
     ${PROJECT_ROOT_PATH}/../rk/sysroot/usr/include
-    ${PROJECT_ROOT_PATH}/include/ffmpeg
+    ${PROJECT_ROOT_PATH}/include/easymedia
+    # ${PROJECT_ROOT_PATH}/include/ffmpeg
+    ${PROJECT_ROOT_PATH}/include/rtsp
 )
 link_directories(
-    ${PROJECT_ROOT_PATH}/lib/ffmpeg
     ${PROJECT_ROOT_PATH}/../rk/sysroot/usr/lib
+    # ${PROJECT_ROOT_PATH}/lib/ffmpeg
+    ${PROJECT_ROOT_PATH}/lib/rtsp
 )
 
 # 查找路径下的所有源文件（因为头文件和实现分离，所以要把所有源文件都添加进来）
@@ -33,7 +36,9 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_ROOT_PATH}/bin)
 add_executable(${CMAKE_PROJECT_NAME} ${DIR_SRCS})
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
-    
+    rtspreader
+    easymedia
+    rkaiq
     # rkfacial
     rga
     rockface
@@ -41,8 +46,8 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     opencv_core
 	opencv_imgproc
 	opencv_imgcodecs
-    avformat
-	avcodec
-    swscale
-	avutil
+    # avformat
+	# avcodec
+    # swscale
+	# avutil
 )
