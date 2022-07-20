@@ -1,11 +1,16 @@
 #include "read_camera.h"
 
 
+cv::Rect interest_box;
+bool blur_imgs_flag = false;
+string last_img_path = ""; // 记录上一次识别的图片索引
+
+
 // 对最新的图片进行人脸识别，发送结果给服务端
 void ReadImg(SocketClient socket_client) {
     char buf[1024];
-    string last_img_path = ""; // 记录上一次识别的图片索引
     while (true) {
+        bool is_img_send = false;
         if (GetRawImgNum() == 0) continue;
         string img_path = GetNewestRawImgPath();
         // printf("last: %s, new: %s\n", last_img_path.c_str(), img_path.c_str());
@@ -17,11 +22,105 @@ void ReadImg(SocketClient socket_client) {
                 // 发送人脸识别结果
                 printf("Send*****************: %s\n", cmp_res.data());
                 socket_client.SendMsg(cmp_res.data());
+                is_img_send = true;
+                // if (strcmp(socket_client.rec_buffer, "finish") == 0) {
+                //     stop_rtspclient();
+                //     printf("Finished box recognition.\n");
+                //     break;
+                // }
             } 
             last_img_path = img_path;
         }
-        usleep(200);
+        // usleep(200);
+        if (!is_img_send) {
+            socket_client.SendMsg("");
+        }
+        if (strcmp(socket_client.rec_buffer, "finish") == 0) {
+            cout << "Finished recognition." << endl;
+            blur_imgs_flag = true;
+            break;
+        }
     }
+}
+
+
+void BlurImgs() {
+    AdjustInterestBox(IMG_WIDTH, IMG_HEIGHT);
+    int idx;
+    char img_path[200];
+    bool start_blur = false;
+    while (true) {
+        usleep(100);
+        if (blur_imgs_flag) {
+            if (!start_blur) {
+                int num_start_idx = last_img_path.find_last_of("/");
+                int num_end_idx = last_img_path.find_last_of(".");
+                string num_str = last_img_path.substr(num_start_idx + 1, num_end_idx - num_start_idx);
+                idx = atoi(num_str.c_str());
+                start_blur = true;
+            } else {
+                if (idx >= GetRawImgNum()) continue;
+                sprintf(img_path, "%s%d.jpg", IMG_DIR_PATH, idx++); // sprintf函数发送格式化输出到指定字符串
+                BlurUninterestedArea(img_path, interest_box);
+            }
+        }
+        
+    }
+}
+
+
+// 设置感兴趣的框
+void AdjustInterestBox(int frame_width, int frame_height) {
+    // int box_w = interest_box.width, box_h = interest_box.height;
+    // interest_box.x = (interest_box.x - box_w >= 0) ? interest_box.x - box_w : 0;
+    // interest_box.y = (interest_box.y - box_h >= 0) ? interest_box.y - box_h : 0;
+    // interest_box.width = (interest_box.x + box_w * 4 <= frame_width) ? box_w * 4 : frame_width - interest_box.x;
+    // interest_box.height = (interest_box.y + box_h * 4 <= frame_height) ? box_h * 4 : frame_height - interest_box.y;
+
+    // interest_box.x = interest_box.x - half_w;
+    // interest_box.y = interest_box.y - half_h;
+    // interest_box.width = frame_width / 2;
+    // interest_box.height = frame_height / 2;
+
+    // interest_box.x = frame_width * 3 / 8;
+    // interest_box.y = (frame_height - frame_width / 4) / 2;
+    // interest_box.width = frame_width / 4;
+    // interest_box.height = frame_width / 4;
+    interest_box = cv::Rect(frame_width * 3 / 8, (frame_height - frame_width / 4) / 2, frame_width / 4, frame_width / 4);
+    printf("After adjust: [%d %d %d %d]\n", interest_box.x, interest_box.y, interest_box.width, interest_box.height);
+}
+
+
+// 模糊区域
+void BlurArea(cv::Mat frame, cv::Rect area) {
+    // printf("rows: %d, cols: %d, x: %d, y: %d, width: %d, height: %d\n", frame.rows, frame.cols, area.x, area.y, area.width, area.height);
+    cv::Mat rot(frame, area);
+    cv::blur(rot, rot, cv::Size(50, 50), cv::Point(-1, -1));
+}
+
+
+// 模糊除指定区域以外的区域
+void BlurUninterestedArea(string img_path, cv::Rect box) {
+    cv::Mat img = cv::imread(img_path);
+    printf("***********************************************************************************blur: %s\n", img_path.c_str());
+    if (!img.data) {
+        printf("Can not read img: %s.\n", img_path.c_str());
+        return;
+    }
+    // printf("BlurUninterestedArea: [%d %d %d %d]\n", box.x, box.y, box.width, box.height);
+    if (box.y > 0) { // 上
+        BlurArea(img, cv::Rect(0, 0, img.cols, box.y));
+    }
+    if (box.x > 0) { // 左
+        BlurArea(img, cv::Rect(0, box.y, box.x, img.rows - box.y));
+    }
+    if (box.x + box.width < img.cols) { // 右
+        BlurArea(img, cv::Rect(box.x + box.width, box.y, img.cols - box.x - box.width, img.rows - box.y));
+    }
+    if (box.y + box.height < img.rows) { // 下
+        BlurArea(img, cv::Rect(box.x, box.y + box.height, box.width, img.rows - box.y - box.height));
+    }
+    cv::imwrite(img_path, img);
 }
 
 
@@ -47,7 +146,7 @@ int GetRawImgNum() {
 // 得到最新的jpg图片
 string GetNewestRawImgPath() {
     int img_num = GetRawImgNum();
-    string num_str = to_string(img_num - 1);
+    string num_str = to_string(img_num);
     string full_path = IMG_DIR_PATH + num_str + ".jpg";
     return full_path;
 }

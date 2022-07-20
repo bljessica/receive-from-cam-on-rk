@@ -1,1 +1,0 @@
-ffmpeg -r 1 -i /home/dyh/raw/%d.jpg aaa.mp4

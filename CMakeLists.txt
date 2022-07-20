@@ -32,6 +32,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_ROOT_PATH}/bin)
 add_executable(${CMAKE_PROJECT_NAME} ${DIR_SRCS})
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
+    iconv
     rtspreader
     easymedia
     rockface

@@ -130,6 +130,7 @@ void LoadFaceLibrary(std::vector<string> image_files) {
 }
 
 
+// 将提取的人脸特征与人脸库进行比对
 string CompareImageWithFaceLib(char* img_name) {
     string person_names_str = "";
     rockface_image_t img;
@@ -141,14 +142,18 @@ string CompareImageWithFaceLib(char* img_name) {
         printf("detect count: %d\n", count);
         for (int i = 0; i < count; i++) {
             rockface_image_t out_img; // 对齐后的人脸图像
-            if (AdjustROIPos(&((&face_array)->face[i]).box, &img)) {
-                if (!rockface_align(face_handle, &img, &((&face_array)->face[i]).box, NULL, &out_img)) { // 人脸关键点（5点）检测，矫正对齐成功
+            rockface_rect_t* box = &((&face_array)->face[i]).box;
+            if (AdjustROIPos(box, &img)) {
+                if (!rockface_align(face_handle, &img, box, NULL, &out_img)) { // 人脸关键点（5点）检测，矫正对齐成功
                     rockface_feature_t out_feature; // 人脸特征
                     if (!rockface_feature_extract(face_handle, &out_img, &out_feature)) { // 对已对齐的人脸图像提取人脸特征成功
                         string cmp_res = CompareFeatureWithFaceLib(out_feature);
                         if (cmp_res.length() > 0) {
-                            printf("name: %s\n", cmp_res.data());
-                            person_names_str += cmp_res + ";";
+                            // 拼接识别信息
+                            string tmp = cmp_res + "|" + to_string(box->left) + "," + to_string(box->top) + "," + to_string(box->right - box->left)
+                                + "," + to_string(box->bottom - box->top) + ";";
+                            printf("person info: %s\n", tmp.data());
+                            person_names_str += tmp;
                         }
                     }
                 }

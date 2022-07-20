@@ -285,6 +285,33 @@ src/rockface_ctl.cpp.s:
 	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/rockface_ctl.cpp.s
 .PHONY : src/rockface_ctl.cpp.s
 
+src/util.o: src/util.cpp.o
+
+.PHONY : src/util.o
+
+# target to build an object file
+src/util.cpp.o:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/util.cpp.o
+.PHONY : src/util.cpp.o
+
+src/util.i: src/util.cpp.i
+
+.PHONY : src/util.i
+
+# target to preprocess a source file
+src/util.cpp.i:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/util.cpp.i
+.PHONY : src/util.cpp.i
+
+src/util.s: src/util.cpp.s
+
+.PHONY : src/util.s
+
+# target to generate assembly for a file
+src/util.cpp.s:
+	$(MAKE) -f CMakeFiles/receive_from_cam_on_rk.dir/build.make CMakeFiles/receive_from_cam_on_rk.dir/src/util.cpp.s
+.PHONY : src/util.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -312,6 +339,9 @@ help:
 	@echo "... src/rockface_ctl.o"
 	@echo "... src/rockface_ctl.i"
 	@echo "... src/rockface_ctl.s"
+	@echo "... src/util.o"
+	@echo "... src/util.i"
+	@echo "... src/util.s"
 .PHONY : help
 
 

@@ -20,13 +20,17 @@
 #include "rockface_ctl.h"
 
 
-#define IMG_WIDTH 640
-#define IMG_HEIGHT 480
+#define IMG_WIDTH 704
+#define IMG_HEIGHT 576
 #define IMG_DIR_PATH "/data/raw/"
 
 
 using namespace std;
 
 void ReadImg(SocketClient socket_client);
+void BlurImgs();
+void AdjustInterestBox(int frame_width, int frame_height);
+void BlurArea(cv::Mat frame, cv::Rect area);
+void BlurUninterestedArea(string img_path, cv::Rect box);
 string GetNewestRawImgPath();
 int GetRawImgNum();

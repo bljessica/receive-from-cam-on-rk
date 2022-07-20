@@ -42,14 +42,16 @@ void SocketClient::Connect() {
 
 // 收发字符串消息
 void SocketClient::SendMsg(const char *msg) {
-    strcpy(buffer, msg);  
-    send(_client_socket, buffer, sizeof(buffer), 0); //发送数据
-    printf("Sended.\n");
-    // memset(buffer, 0, sizeof(buffer));
-    // int num_read; // 接受数据 
-    // num_read = recv(_client_socket, buffer, MAX_BUFFER_SIZE, 0);
-    // printf("received\n\n");
-    // return buffer;
+    if (recv(_client_socket, rec_buffer, MAX_BUFFER_SIZE, 0) >= 0 && strlen(rec_buffer) > 0) 
+        cout << "Received: " << rec_buffer << endl;
+
+    strcpy(_send_buffer, msg);  
+    // ubuntu下默认采用utf-8，而windows默认采用gbk，所以要保证含有中文的内容转成gbk
+    char pOut[MAX_BUFFER_SIZE * 3];
+    charset_convert_UTF8_TO_GB2312(_send_buffer, ( size_t )MAX_BUFFER_SIZE, pOut, ( size_t )MAX_BUFFER_SIZE * 3);
+    send(_client_socket, pOut, MAX_BUFFER_SIZE, 0); //发送数据
+    if (strlen(_send_buffer) > 0)
+        cout << "Send: " << _send_buffer << endl;
 }
 
 

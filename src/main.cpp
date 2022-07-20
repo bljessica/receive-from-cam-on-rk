@@ -40,8 +40,13 @@ int main(){
 	// 人脸识别
     thread face_recognition_thread(ReadImg, socket_client);
     face_recognition_thread.detach();
+
+    // 模糊图片
+    thread blur_imgs_thread(BlurImgs);
+    blur_imgs_thread.detach();
+
 	// 读摄像头rtsp流
-    start_rtspclient("172.16.55.31", "/ISAPI/streaming/channels/102", evt_handler, "554", "", "admin", "123456jl");
+    start_rtspclient("172.16.55.31", "/ISAPI/streaming/channels/103", evt_handler, "554", "", "admin", "123456jl");
    
     socket_client.Disconnet();
     ReleaseRockface();
