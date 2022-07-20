@@ -1,8 +1,8 @@
 #include "read_camera.h"
 
 
-cv::Rect interest_box;
-bool blur_imgs_flag = false;
+cv::Rect interest_box; // 图片感兴趣区域（不模糊）
+bool blur_imgs_flag = false; // 是否模糊图片
 string last_img_path = ""; // 记录上一次识别的图片索引
 
 
@@ -23,15 +23,9 @@ void ReadImg(SocketClient socket_client) {
                 printf("Send*****************: %s\n", cmp_res.data());
                 socket_client.SendMsg(cmp_res.data());
                 is_img_send = true;
-                // if (strcmp(socket_client.rec_buffer, "finish") == 0) {
-                //     stop_rtspclient();
-                //     printf("Finished box recognition.\n");
-                //     break;
-                // }
             } 
             last_img_path = img_path;
         }
-        // usleep(200);
         if (!is_img_send) {
             socket_client.SendMsg("");
         }
@@ -44,6 +38,7 @@ void ReadImg(SocketClient socket_client) {
 }
 
 
+// 模糊图片
 void BlurImgs() {
     AdjustInterestBox(IMG_WIDTH, IMG_HEIGHT);
     int idx;
@@ -71,23 +66,9 @@ void BlurImgs() {
 
 // 设置感兴趣的框
 void AdjustInterestBox(int frame_width, int frame_height) {
-    // int box_w = interest_box.width, box_h = interest_box.height;
-    // interest_box.x = (interest_box.x - box_w >= 0) ? interest_box.x - box_w : 0;
-    // interest_box.y = (interest_box.y - box_h >= 0) ? interest_box.y - box_h : 0;
-    // interest_box.width = (interest_box.x + box_w * 4 <= frame_width) ? box_w * 4 : frame_width - interest_box.x;
-    // interest_box.height = (interest_box.y + box_h * 4 <= frame_height) ? box_h * 4 : frame_height - interest_box.y;
-
-    // interest_box.x = interest_box.x - half_w;
-    // interest_box.y = interest_box.y - half_h;
-    // interest_box.width = frame_width / 2;
-    // interest_box.height = frame_height / 2;
-
-    // interest_box.x = frame_width * 3 / 8;
-    // interest_box.y = (frame_height - frame_width / 4) / 2;
-    // interest_box.width = frame_width / 4;
-    // interest_box.height = frame_width / 4;
+    // 图像中间部分
     interest_box = cv::Rect(frame_width * 3 / 8, (frame_height - frame_width / 4) / 2, frame_width / 4, frame_width / 4);
-    printf("After adjust: [%d %d %d %d]\n", interest_box.x, interest_box.y, interest_box.width, interest_box.height);
+    // printf("After adjust: [%d %d %d %d]\n", interest_box.x, interest_box.y, interest_box.width, interest_box.height);
 }
 
 
@@ -102,7 +83,7 @@ void BlurArea(cv::Mat frame, cv::Rect area) {
 // 模糊除指定区域以外的区域
 void BlurUninterestedArea(string img_path, cv::Rect box) {
     cv::Mat img = cv::imread(img_path);
-    printf("***********************************************************************************blur: %s\n", img_path.c_str());
+    // printf("***********************************************************************************blur: %s\n", img_path.c_str());
     if (!img.data) {
         printf("Can not read img: %s.\n", img_path.c_str());
         return;
@@ -120,7 +101,7 @@ void BlurUninterestedArea(string img_path, cv::Rect box) {
     if (box.y + box.height < img.rows) { // 下
         BlurArea(img, cv::Rect(box.x, box.y + box.height, box.width, img.rows - box.y - box.height));
     }
-    cv::imwrite(img_path, img);
+    cv::imwrite(img_path, img); // 重新写入图片
 }
 
 

@@ -28,6 +28,7 @@ class SocketClient {
         void Connect();
         void SendMsg(const char *msg);
         void Disconnet();
+        
     private:
         struct sockaddr_in _server_addr, _client_addr; // 服务端、客户端地址
         char _send_buffer[MAX_BUFFER_SIZE]; // 发送缓冲区  
