@@ -9,10 +9,19 @@ string last_img_path = ""; // 记录上一次识别的图片索引
 // 对最新的图片进行人脸识别，发送结果给服务端
 void ReadImg(SocketClient socket_client) {
     char buf[1024];
+    int num = 1; // 记录删除图片周期
+    int img_idx = 1; // 读到的图片索引
     while (true) {
         bool is_img_send = false;
-        if (GetRawImgNum() == 0) continue;
-        string img_path = GetNewestRawImgPath();
+        if (GetRawImgNum() <= 1) continue;
+        string img_path = GetNewestRawImgPath(img_idx);
+        // 判断图片是否存在
+        try {
+            cv::Mat img = cv::imread(img_path);
+        } catch (...) { 
+            printf("Caught error.\n");
+            continue;
+        }
         // printf("last: %s, new: %s\n", last_img_path.c_str(), img_path.c_str());
         if (strcmp(last_img_path.c_str(), img_path.c_str()) != 0) {
             printf("Recog************%s, %s\n", img_path.c_str(), (char*)img_path.c_str());
@@ -29,10 +38,19 @@ void ReadImg(SocketClient socket_client) {
         if (!is_img_send) {
             socket_client.SendMsg("");
         }
-        if (strcmp(socket_client.rec_buffer, "finish") == 0) {
+        if (strcmp(socket_client.rec_buffer, "finish") == 0) { // 停止扫描
             cout << "Finished recognition." << endl;
+            // system("rm /data/raw/*"); // 删除文件夹下所有图片
             blur_imgs_flag = true;
             break;
+        }
+        num++;
+        if (DELETE_IMGS_REGULARLY_FLAG && num > 100) { // 需要定期删除图片
+            num -= 100;
+            img_idx += GetRawImgNum();
+            system("rm /data/raw/*"); // 删除文件夹下所有图片
+            printf("Delete imgs.\n");
+            // usleep(300); // 确保文件夹内有图片
         }
     }
 }
@@ -41,20 +59,23 @@ void ReadImg(SocketClient socket_client) {
 // 模糊图片
 void BlurImgs() {
     AdjustInterestBox(IMG_WIDTH, IMG_HEIGHT);
-    int idx;
+    int idx, img_start_idx;
     char img_path[200];
     bool start_blur = false;
     while (true) {
         usleep(100);
         if (blur_imgs_flag) {
-            if (!start_blur) {
+            if (!start_blur) { // 刚开始模糊，确定开始模糊的图片索引
+                // usleep(500); // 确保文件夹内有图片
                 int num_start_idx = last_img_path.find_last_of("/");
                 int num_end_idx = last_img_path.find_last_of(".");
                 string num_str = last_img_path.substr(num_start_idx + 1, num_end_idx - num_start_idx);
                 idx = atoi(num_str.c_str());
+                // img_start_idx = idx; // 最开始模糊的图片索引
                 start_blur = true;
-            } else {
-                if (idx >= GetRawImgNum()) continue;
+            } else { // 开始模糊
+                if (idx >= GetRawImgNum()) continue; // TODO: 定期删除图片情况
+                // if (idx >= GetRawImgNum() + img_start_idx) continue;
                 sprintf(img_path, "%s%d.jpg", IMG_DIR_PATH, idx++); // sprintf函数发送格式化输出到指定字符串
                 BlurUninterestedArea(img_path, interest_box);
             }
@@ -125,9 +146,9 @@ int GetRawImgNum() {
 
 
 // 得到最新的jpg图片
-string GetNewestRawImgPath() {
+string GetNewestRawImgPath(int start_idx) {
     int img_num = GetRawImgNum();
-    string num_str = to_string(img_num);
+    string num_str = to_string(start_idx + img_num - 2); // 确保图片存在
     string full_path = IMG_DIR_PATH + num_str + ".jpg";
     return full_path;
 }

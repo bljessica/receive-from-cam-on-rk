@@ -137,12 +137,16 @@ string CompareImageWithFaceLib(char* img_name) {
     rockface_image_read(img_name, &img, 1); // 读取图像文件成功
     rockface_det_array_t face_array;
     memset(&face_array, 0, sizeof(rockface_det_array_t));
+    cv::Mat im = cv::imread(img_name);
     if (!rockface_detect(face_handle, &img, &face_array)) { // 人脸检测成功
         int count = (&face_array)->count;
-        printf("detect count: %d\n", count);
+        printf("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Img: %s, Detect count: %d\n", img_name, count);
         for (int i = 0; i < count; i++) {
             rockface_image_t out_img; // 对齐后的人脸图像
             rockface_rect_t* box = &((&face_array)->face[i]).box;
+            printf("The %dth detect box, w: %d, h: %d\n", i + 1, box->right - box->left, box->bottom - box->top);
+            // 框出检测到的人脸
+            cv::rectangle(im, cv::Rect(box->left, box->top, box->right - box->left, box->bottom - box->top), cv::Scalar(0, 0, 255), 3, 1);
             if (AdjustROIPos(box, &img)) {
                 if (!rockface_align(face_handle, &img, box, NULL, &out_img)) { // 人脸关键点（5点）检测，矫正对齐成功
                     rockface_feature_t out_feature; // 人脸特征
@@ -163,6 +167,7 @@ string CompareImageWithFaceLib(char* img_name) {
     }
     rockface_image_release(&img);
     memset(&face_array, 0, sizeof(rockface_det_array_t));
+    imwrite(img_name, im);
     return person_names_str;
 }
 
@@ -171,18 +176,20 @@ string CompareImageWithFaceLib(char* img_name) {
 string CompareFeatureWithFaceLib(rockface_feature_t feature) {
     float max_similarity = -1;
     string max_similarity_person_name = "";
+    string max_similarity_img = "";
     for(auto it:img_feature_map) {
         float out_similarity;
         if (!rockface_feature_compare(&feature, &(it.second), &out_similarity)) {
             if (out_similarity > SIMILARITY_THRESHOLD && out_similarity > max_similarity) {
                 max_similarity = out_similarity;
                 max_similarity_person_name = img_person_map[it.first.data()];
+                max_similarity_img = it.first;
             }
             // printf("img_name: %s, person_name: %s, similarity: %f\n", it.first.data(), img_person_map[it.first.data()].data(), out_similarity);
         }
     }
     if (max_similarity_person_name.length() > 0) {
-        printf("similarity: %f\n", max_similarity);
+        printf("Person: %s, similarity: %f, img: %s\n", max_similarity_person_name.c_str(), max_similarity, max_similarity_img.data());
     }
     return max_similarity_person_name;
 }

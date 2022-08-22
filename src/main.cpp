@@ -22,6 +22,7 @@ rtsp_event_handler_t evt_handler = {
 
 
 int main(){  
+    // 清空图片文件夹
     system("rm /data/raw/*");
 	// 初始化人脸识别，读入人脸库
     InitRockface();
@@ -46,7 +47,7 @@ int main(){
     blur_imgs_thread.detach();
 
 	// 读摄像头rtsp流
-    start_rtspclient("172.16.55.31", "/ISAPI/streaming/channels/103", evt_handler, "554", "", "admin", "123456jl");
+    start_rtspclient("172.16.8.31", "/ISAPI/streaming/channels/103", evt_handler, "554", "", "admin", "123456jl");
    
     socket_client.Disconnet();
     ReleaseRockface();
